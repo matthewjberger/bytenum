@@ -8,7 +8,7 @@ enum Color {
 }
 
 #[test]
-fn test_bytenum() -> Result<(), Box<dyn std::error::Error + 'static>> {
+fn convert_variants() -> Result<(), Box<dyn std::error::Error + 'static>> {
     [Color::Red, Color::Green, Color::Blue]
         .into_iter()
         .enumerate()

@@ -1,6 +1,6 @@
 use darling::FromDeriveInput;
 use proc_macro::TokenStream;
-use proc_macro2::{Ident, Literal, Span, TokenStream as TokenStream2};
+use proc_macro2::{Ident, Span, TokenStream as TokenStream2};
 use quote::{quote, quote_spanned};
 use syn::{parse_macro_input, spanned::Spanned, Data, DeriveInput, Error, Fields};
 
@@ -41,9 +41,7 @@ pub fn derive_bytenum(input: TokenStream) -> TokenStream {
         Data::Enum(data_enum) => {
             match_arms = TokenStream2::new();
 
-            for (index, variant) in data_enum.variants.iter().enumerate() {
-                let index = Literal::usize_unsuffixed(index);
-
+            for variant in data_enum.variants.iter() {
                 let ref variant_name = variant.ident;
 
                 // Variant can only be a named Unit like `Variant`
@@ -53,7 +51,7 @@ pub fn derive_bytenum(input: TokenStream) -> TokenStream {
 
                 match_arms.extend(quote_spanned! {
                     variant.span()=>
-                        #index => #name::#variant_name,
+                        x if x == #name::#variant_name as #repr => Ok(#name::#variant_name),
                 });
             }
         }
@@ -65,11 +63,10 @@ pub fn derive_bytenum(input: TokenStream) -> TokenStream {
             type Error = &'static str;
 
             fn try_from(value: #repr) -> Result<Self, Self::Error> {
-                let variant = match value {
+                match value {
                     #match_arms
-                    _ => return Err("Failed to convert enum to numeric value!")
-                };
-                Ok(variant)
+                    _ => Err("Failed to convert enum to numeric value!")
+                }
             }
         }
     };

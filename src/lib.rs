@@ -24,47 +24,37 @@ pub fn derive_bytenum(input: TokenStream) -> TokenStream {
 
     let mut match_arms;
 
-    if let Data::Enum(data_enum) = data {
-        match_arms = TokenStream2::new();
+    match data {
+        Data::Enum(data_enum) => {
+            match_arms = TokenStream2::new();
 
-        for (index, variant) in data_enum.variants.iter().enumerate() {
-            // Check if enum has more variants than a u8 can represent
-            let index = {
-                let result = u8::try_from(index);
-                if result.is_ok() {
-                    result.unwrap()
-                } else {
-                    return derive_error!(
-                        "Bytenum can only support enums with a maximum of 254 variants"
-                    );
+            for (index, variant) in data_enum.variants.iter().enumerate() {
+                // Check if enum has more variants than a u8 can represent
+                let index = {
+                    let result = u8::try_from(index);
+                    if result.is_ok() {
+                        result.unwrap()
+                    } else {
+                        return derive_error!(
+                            "Bytenum can only support enums with a maximum of 256 variants"
+                        );
+                    }
+                };
+
+                let ref variant_name = variant.ident;
+
+                // Variant can only be a named Unit like `Variant`
+                if !matches!(&variant.fields, Fields::Unit) {
+                    return derive_error!("Bytenum is only implemented for named unit enum fields");
                 }
-            };
 
-            let ref variant_name = variant.ident;
-
-            // Variant can only be a named Unit like `Variant`
-            if !matches!(&variant.fields, Fields::Unit) {
-                return derive_error!("Bytenum is only implemented for named unit enum fields");
+                match_arms.extend(quote_spanned! {
+                    variant.span()=>
+                        #index => #name::#variant_name,
+                });
             }
-
-            match_arms.extend(quote_spanned! {
-                variant.span()=>
-                    #index => #name::#variant_name,
-            });
         }
-
-        // // Here we construct the function for the current variant
-        // bytenum_functions.extend(quote_spanned! {variant.span()=>
-        //     fn #bytenum_func_name(&self) -> bool {
-        //         match self {
-        //             #name::#variant_name #fields_in_variant => true,
-        //             _ => false,
-        //         }
-        //     }
-        // });
-        // }
-    } else {
-        return derive_error!("Bytenum is only implemented for enums");
+        _ => return derive_error!("Bytenum is only implemented for enums"),
     };
 
     let expanded = quote! {

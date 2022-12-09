@@ -1,9 +1,8 @@
+use darling::FromDeriveInput;
 use proc_macro::TokenStream;
-use proc_macro2::{Span, TokenStream as TokenStream2};
-
+use proc_macro2::{Ident, Literal, Span, TokenStream as TokenStream2};
 use quote::{quote, quote_spanned};
-use syn::spanned::Spanned;
-use syn::{parse_macro_input, Data, DeriveInput, Error, Fields};
+use syn::{parse_macro_input, spanned::Spanned, Data, DeriveInput, Error, Fields};
 
 macro_rules! derive_error {
     ($string: tt) => {
@@ -13,12 +12,26 @@ macro_rules! derive_error {
     };
 }
 
-#[proc_macro_derive(Bytenum)]
+#[derive(FromDeriveInput, Default)]
+#[darling(default, attributes(bytenum), forward_attrs(allow, doc, cfg))]
+struct BytenumOptions {
+    repr: Option<Ident>,
+}
+
+#[proc_macro_derive(Bytenum, attributes(bytenum))]
 pub fn derive_bytenum(input: TokenStream) -> TokenStream {
-    // See https://doc.servo.org/syn/derive/struct.DeriveInput.html
     let input: DeriveInput = parse_macro_input!(input as DeriveInput);
 
-    // get enum name
+    let options =
+        BytenumOptions::from_derive_input(&input).expect("Invalid bytenum options specified.");
+    let repr = options
+        .repr
+        .unwrap_or(Ident::new(&"u8".to_string(), Span::call_site()));
+
+    if !["u8".to_string(), "u16".to_string(), "u32".to_string()].contains(&repr.to_string()) {
+        return derive_error!("Enum representation must be either u8, u16, or u32");
+    }
+
     let ref name = input.ident;
     let ref data = input.data;
 
@@ -29,17 +42,7 @@ pub fn derive_bytenum(input: TokenStream) -> TokenStream {
             match_arms = TokenStream2::new();
 
             for (index, variant) in data_enum.variants.iter().enumerate() {
-                // Check if enum has more variants than a u8 can represent
-                let index = {
-                    let result = u8::try_from(index);
-                    if result.is_ok() {
-                        result.unwrap()
-                    } else {
-                        return derive_error!(
-                            "Bytenum can only support enums with a maximum of 256 variants"
-                        );
-                    }
-                };
+                let index = Literal::usize_unsuffixed(index);
 
                 let ref variant_name = variant.ident;
 
@@ -58,13 +61,13 @@ pub fn derive_bytenum(input: TokenStream) -> TokenStream {
     };
 
     let expanded = quote! {
-        impl TryFrom<u8> for #name {
+        impl TryFrom<#repr> for #name {
             type Error = &'static str;
 
-            fn try_from(value: u8) -> Result<Self, Self::Error> {
+            fn try_from(value: #repr) -> Result<Self, Self::Error> {
                 let variant = match value {
                     #match_arms
-                    _ => return Err("Failed to convert enum to u8!")
+                    _ => return Err("Failed to convert enum to numeric value!")
                 };
                 Ok(variant)
             }

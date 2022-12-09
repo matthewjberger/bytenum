@@ -1,6 +1,7 @@
 use bytenum::Bytenum;
 
 #[derive(Bytenum, Debug, PartialEq)]
+#[bytenum(repr = "u16")] // u8, u16, u32 are supported. default is u8
 enum Color {
     Red,
     Green,
@@ -13,7 +14,7 @@ fn convert_variants() -> Result<(), Box<dyn std::error::Error + 'static>> {
         .into_iter()
         .enumerate()
         .try_for_each(|(value, color)| {
-            assert_eq!(color, Color::try_from(value as u8)?);
+            assert_eq!(color, Color::try_from(value as u16)?);
             Ok(())
         })
 }

@@ -17,7 +17,7 @@ Example:
 use bytenum::Bytenum;
 
 #[derive(Bytenum, Debug, PartialEq)]
-#[bytenum(repr = "u16")] // u8, u16, u32 are supported. default is u8
+#[bytenum(repr = "u16")] // u8, u16, u32 are supported. default is u8 if this line is omitted
 enum Color {
     Red,
     Green,

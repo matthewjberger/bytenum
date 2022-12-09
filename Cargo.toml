@@ -1,6 +1,6 @@
 [package]
 name = "bytenum"
-version = "0.1.6"
+version = "0.1.7"
 authors = ["Matthew Berger <matthewjordanberger@gmail.com>"]
 description = """
 Bytenum is a rust derive macro that creates a try_from<T> implementation for an enum with only unit variants. 
@@ -16,7 +16,6 @@ edition = "2021"
 proc-macro = true
 
 [dependencies]
-darling = "0.14.2"
 proc-macro2 = "1.0"
 quote = "1.0"
 syn = "1.0"

@@ -8,7 +8,7 @@ Bytenum is a rust derive macro that creates a `try_from<T>` implementation for a
 Add this to your `Cargo.toml`:
 
 ```toml
-bytenum = "0.1.6"
+bytenum = "0.1.7"
 ```
 
 Example:
@@ -17,7 +17,7 @@ Example:
 use bytenum::Bytenum;
 
 #[derive(Bytenum, Debug, PartialEq, Copy, Clone)]
-#[bytenum(repr = "u16")] // u8, u16, u32 are supported. default is u8 if this line is omitted
+#[repr(u16)]
 enum Color {
     Red = 0x04,
     Green = 0x15,

@@ -1,4 +1,3 @@
-use darling::FromDeriveInput;
 use proc_macro::TokenStream;
 use proc_macro2::{Ident, Span, TokenStream as TokenStream2};
 use quote::{quote, quote_spanned};
@@ -12,24 +11,28 @@ macro_rules! derive_error {
     };
 }
 
-#[derive(FromDeriveInput, Default)]
-#[darling(default, attributes(bytenum), forward_attrs(allow, doc, cfg))]
-struct BytenumOptions {
-    repr: Option<Ident>,
-}
-
 #[proc_macro_derive(Bytenum, attributes(bytenum))]
 pub fn derive_bytenum(input: TokenStream) -> TokenStream {
     let input: DeriveInput = parse_macro_input!(input as DeriveInput);
 
-    let options =
-        BytenumOptions::from_derive_input(&input).expect("Invalid bytenum options specified.");
-    let repr = options
-        .repr
-        .unwrap_or(Ident::new(&"u8".to_string(), Span::call_site()));
+    let mut repr = None;
+    for attr in input.attrs {
+        if attr.path.is_ident("repr") {
+            match attr.parse_args::<Ident>() {
+                Ok(name) => match name.to_string().as_str() {
+                    "u8" | "u16" | "u32" | "u64" | "u128" | "usize" | "i8" | "i16" | "i32"
+                    | "i64" | "i128" | "isize" => {
+                        repr = Some(quote!(#name));
+                    }
+                    _ => {}
+                },
+                _ => (),
+            }
+        }
+    }
 
-    if !["u8".to_string(), "u16".to_string(), "u32".to_string()].contains(&repr.to_string()) {
-        return derive_error!("Enum representation must be either u8, u16, or u32");
+    if repr.is_none() {
+        return derive_error!("The #[repr(T)] attribute is required when using Bytenum.");
     }
 
     let ref name = input.ident;

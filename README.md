@@ -1,6 +1,7 @@
 # Bytenum
 
-Bytenum is a rust derive macro that creates a try_from<u8> implementation for an enum with unit variants. 
+Bytenum is a rust derive macro that creates a `try_from<T>` implementation for an enum with only unit variants. 
+`T` must be an unsigned numeric type such as `u8`, `u16`, or `u32`.
 
 ## Usage
 

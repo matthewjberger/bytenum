@@ -1,10 +1,10 @@
 [package]
 name = "bytenum"
-version = "0.1.4"
+version = "0.1.5"
 authors = ["Matthew Berger <matthewjordanberger@gmail.com>"]
 description = """
-Bytenum is a rust derive macro that creates a `try_from<T>` implementation for an enum with only unit variants. 
-`T` must be an unsigned numeric type such as `u8`, `u16`, or `u32`.
+Bytenum is a rust derive macro that creates a try_from<T> implementation for an enum with only unit variants. 
+T must be an unsigned numeric type such as u8, u16, or u32.
 """
 homepage = "https://github.com/matthewjberger/bytenum"
 repository = "https://github.com/matthewjberger/bytenum"

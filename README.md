@@ -8,7 +8,7 @@ Bytenum is a rust derive macro that creates a `try_from<T>` implementation for a
 Add this to your `Cargo.toml`:
 
 ```toml
-bytenum = "0.1.3"
+bytenum = "0.1.5"
 ```
 
 Example:

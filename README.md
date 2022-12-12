@@ -1,14 +1,14 @@
 # Bytenum
 
 Bytenum is a rust derive macro that creates a `try_from<T>` implementation for an enum with only unit variants. 
-All types supported by are `#[repr(T)]` are supported by bytenum.
+All types supported by `#[repr(T)]` are supported by bytenum.
 
 ## Usage
 
 Add this to your `Cargo.toml`:
 
 ```toml
-bytenum = "0.1.8"
+bytenum = "0.1.9"
 ```
 
 Example:

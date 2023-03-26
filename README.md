@@ -1,3 +1,6 @@
+:warning:
+> This crate is deprecated, please use [enum2repr](https://github.com/matthewjberger/enum2repr) instead :rocket:
+
 # Bytenum
 
 [<img alt="github" src="https://img.shields.io/badge/github-matthewjberger/bytenum-8da0cb?style=for-the-badge&labelColor=555555&logo=github" height="20">](https://github.com/matthewjberger/bytenum)
